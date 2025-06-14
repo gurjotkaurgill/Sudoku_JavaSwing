@@ -1,6 +1,8 @@
+package sudoku;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import static sudoku.SudokuData.*;
 
 public class Sudoku {
     class Tile extends JButton {
@@ -19,29 +21,8 @@ public class Sudoku {
     int boardWidth = 600;
     int boardHeight = 650;
 
-    String[] puzzle = {
-        "--74916-5", //row 0
-        "2---6-3-9", //row 1
-        "5-932---8", //row 2
-        "-586----4",
-        "--3----9-",
-        "--62--187",
-        "9-4-7---2",
-        "67-83----",
-        "81--45---"
-    };
-
-    String[] solution = {
-        "387491625",
-        "241568379",
-        "569327418",
-        "758619234",
-        "123784596",
-        "496253187",
-        "934176852",
-        "675832941",
-        "812945763"
-    };
+    String[] puzzle;
+    String[] solution;
 
     JFrame frame = new JFrame("Sudoku");
     JLabel textLabel = new JLabel();
@@ -54,6 +35,12 @@ public class Sudoku {
     int errors = 0;
 
     Sudoku() {
+
+        int index = (int)(Math.random() * PUZZLES.length);
+        puzzle = PUZZLES[index];
+        solution = SOLUTIONS[index];
+
+
         frame.setSize(boardWidth, boardHeight);
         frame.setResizable(false);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -123,6 +110,7 @@ public class Sudoku {
 
                 tile.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
+
                         Tile tile = (Tile) e.getSource();
                         int r = tile.r;
                         int c = tile.c;
@@ -140,6 +128,11 @@ public class Sudoku {
                                 
                                 //User's selected number matches the solution
                                 tile.setText(numSelectedText);
+                                tile.setBackground(new Color(220, 255, 220)); // optional visual feedback
+
+                                if (isBoardComplete()) {
+                                    JOptionPane.showMessageDialog(frame, "Congratulations! You've completed the Sudoku!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                                }
                             }
                             else {
                                 //User's selected number does not match the solution
@@ -199,9 +192,20 @@ public class Sudoku {
                 completeBoard();
             }
         });
+
+        JButton newGameButton = new JButton("New Game");
+        newGameButton.setFont(new Font("Arial", Font.BOLD, 16));
+        newGameButton.setFocusable(false);
+        newGameButton.addActionListener(new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+            frame.dispose(); // Close current window
+            new Sudoku();    // Open new one with a different puzzle
+        }
+});
     
         controlPanel.add(resetButton);
         controlPanel.add(completeButton);
+        controlPanel.add(newGameButton);
     }
 
     void resetBoard() {
@@ -226,7 +230,6 @@ public class Sudoku {
         }
     }
     
-    
     void completeBoard() {
         for (int r = 0; r < 9; r++) {
             for (int c = 0; c < 9; c++) {
@@ -239,4 +242,24 @@ public class Sudoku {
             }
         }
     }
+
+    boolean isBoardComplete() {
+        for (int r = 0; r < 9; r++) {
+            for (int c = 0; c < 9; c++) {
+                Tile tile = tiles[r][c];
+                char ch = puzzle[r].charAt(c);
+    
+                // Skip initial filled cells
+                if (ch == '-') {
+                    String userText = tile.getText();
+                    String correctText = String.valueOf(solution[r].charAt(c));
+                    if (!userText.equals(correctText)) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+    
 }
