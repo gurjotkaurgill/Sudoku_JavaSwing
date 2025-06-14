@@ -14,14 +14,15 @@ public class Sudoku {
         }
     }
 
+    Tile[][] tiles = new Tile[9][9]; // Store references to all tiles
+
     int boardWidth = 600;
     int boardHeight = 650;
 
     String[] puzzle = {
         "--74916-5", //row 0
         "2---6-3-9", //row 1
-        "5-9-3-2--8", //row 2
-        "-----7-1-",
+        "5-932---8", //row 2
         "-586----4",
         "--3----9-",
         "--62--187",
@@ -47,6 +48,7 @@ public class Sudoku {
     JPanel textPanel = new JPanel();
     JPanel boardPanel = new JPanel();
     JPanel buttonsPanel = new JPanel();
+    JPanel controlPanel = new JPanel(); // for Reset and Complete buttons
 
     JButton numSelected = null;
     int errors = 0;
@@ -71,7 +73,14 @@ public class Sudoku {
 
         buttonsPanel.setLayout(new GridLayout(1, 9));
         setupButtons();
-        frame.add(buttonsPanel, BorderLayout.SOUTH);
+        setupControlButtons();
+
+        JPanel bottomPanel = new JPanel();
+        bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.Y_AXIS));
+        bottomPanel.add(buttonsPanel);
+        bottomPanel.add(controlPanel);
+
+        frame.add(bottomPanel, BorderLayout.SOUTH);
 
         frame.setVisible(true);
     }
@@ -80,7 +89,6 @@ public class Sudoku {
         for (int r = 0; r < 9; r++) {
 
             for (int c = 0; c < 9; c++) {
-
                 Tile tile = new Tile(r, c);
                 char tileChar = puzzle[r].charAt(c);
 
@@ -142,6 +150,7 @@ public class Sudoku {
                         }
                     }
                 });
+                tiles[r][c] = tile;
             }
         }
     }
@@ -166,6 +175,68 @@ public class Sudoku {
                     numSelected.setBackground(Color.lightGray);
                 }
             });
+        }
+    }
+
+    void setupControlButtons() {
+        controlPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 20, 10)); // spacing
+    
+        JButton resetButton = new JButton("Reset");
+        resetButton.setFont(new Font("Arial", Font.BOLD, 16));
+        resetButton.setFocusable(false);
+        resetButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                resetBoard();
+                //setupButtons(); // to unhighlight and un-select the number button
+            }
+        });
+    
+        JButton completeButton = new JButton("Complete");
+        completeButton.setFont(new Font("Arial", Font.BOLD, 16));
+        completeButton.setFocusable(false);
+        completeButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                completeBoard();
+            }
+        });
+    
+        controlPanel.add(resetButton);
+        controlPanel.add(completeButton);
+    }
+
+    void resetBoard() {
+        errors = 0;
+        textLabel.setText("Errors: 0");
+    
+        // Unhighlight selected number
+        if (numSelected != null) {
+            numSelected.setBackground(Color.white);
+            numSelected = null;
+        }
+    
+        for (int r = 0; r < 9; r++) {
+            for (int c = 0; c < 9; c++) {
+                char ch = puzzle[r].charAt(c);
+                Tile tile = tiles[r][c];
+                if (ch == '-') {
+                    tile.setText("");
+                    tile.setBackground(Color.white);
+                }
+            }
+        }
+    }
+    
+    
+    void completeBoard() {
+        for (int r = 0; r < 9; r++) {
+            for (int c = 0; c < 9; c++) {
+                char ch = puzzle[r].charAt(c);
+                Tile tile = tiles[r][c];
+                if (ch == '-') {
+                    tile.setText(String.valueOf(solution[r].charAt(c)));
+                    tile.setBackground(new Color(220, 255, 220)); // light green
+                }
+            }
         }
     }
 }
