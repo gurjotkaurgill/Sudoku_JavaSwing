@@ -4,8 +4,10 @@ import java.awt.event.*;
 
 public class Sudoku {
     class Tile extends JButton {
-        int r;
-        int c;
+
+        int r; // row index
+        int c; // column index
+        
         Tile(int r, int c) {
             this.r = r;
             this.c = c;
@@ -16,8 +18,9 @@ public class Sudoku {
     int boardHeight = 650;
 
     String[] puzzle = {
-        "--74916-5",
-        "2---6-3-9",
+        "--74916-5", //row 0
+        "2---6-3-9", //row 1
+        "5-9-3-2--8", //row 2
         "-----7-1-",
         "-586----4",
         "--3----9-",
@@ -49,11 +52,10 @@ public class Sudoku {
     int errors = 0;
 
     Sudoku() {
-        // frame.setVisible(true);
         frame.setSize(boardWidth, boardHeight);
         frame.setResizable(false);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setLocationRelativeTo(null);
+        frame.setLocationRelativeTo(null); // Center the window on the screen
         frame.setLayout(new BorderLayout());
 
         textLabel.setFont(new Font("Arial", Font.BOLD, 30));
@@ -76,18 +78,25 @@ public class Sudoku {
 
     void setupTiles() {
         for (int r = 0; r < 9; r++) {
+
             for (int c = 0; c < 9; c++) {
+
                 Tile tile = new Tile(r, c);
                 char tileChar = puzzle[r].charAt(c);
+
                 if (tileChar != '-') {
+                    // If the tile has a number, set it as text
                     tile.setFont(new Font("Arial", Font.BOLD, 20));
                     tile.setText(String.valueOf(tileChar));
                     tile.setBackground(Color.lightGray);
                 }
                 else {
+                    // If the tile is empty, set it as an empty button
                     tile.setFont(new Font("Arial", Font.PLAIN, 20));
                     tile.setBackground(Color.white);
                 }
+
+                //Provide borders to the tiles
                 if ((r == 2 && c == 2) || (r == 2 && c == 5) || (r == 5 && c == 2) || (r == 5 && c == 5)) {
                     tile.setBorder(BorderFactory.createMatteBorder(1, 1, 5, 5, Color.black));
                 }
@@ -100,7 +109,8 @@ public class Sudoku {
                 else {
                     tile.setBorder(BorderFactory.createLineBorder(Color.black));
                 }
-                tile.setFocusable(false);
+
+                tile.setFocusable(false); //to remove rectangle around button when hovered/ clicked
                 boardPanel.add(tile);
 
                 tile.addActionListener(new ActionListener() {
@@ -108,16 +118,23 @@ public class Sudoku {
                         Tile tile = (Tile) e.getSource();
                         int r = tile.r;
                         int c = tile.c;
+
                         if (numSelected != null) {
                             if (tile.getText() != "") {
+                                // If the tile already has a number, do not allow changing it
                                 return;
                             }
                             String numSelectedText = numSelected.getText();
                             String tileSolution = String.valueOf(solution[r].charAt(c));
                             if (tileSolution.equals(numSelectedText)) {
+                                // == does not work here because numSelectedText is a String and tileSolution is a char
+                                //both are stored in different memory locations
+                                
+                                //User's selected number matches the solution
                                 tile.setText(numSelectedText);
                             }
                             else {
+                                //User's selected number does not match the solution
                                 errors += 1;
                                 textLabel.setText("Errors: " + String.valueOf(errors));
                             }
@@ -140,6 +157,7 @@ public class Sudoku {
 
             button.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
+                    // When a number button is clicked, highlight it and allow the user to place it on the board
                     JButton button = (JButton) e.getSource();
                     if (numSelected != null) {
                         numSelected.setBackground(Color.white);
